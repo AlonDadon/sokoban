@@ -1,0 +1,94 @@
+*{
+    box-sizing: border-box;
+}
+body{
+    margin: 0;
+    background-color: rgb(105, 105, 105);
+font-family:cursive;
+width: 100%;
+width: 100%;
+}
+.main-header{
+    height: 9rem;
+    width: 100%;
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+    justify-content:center;
+}
+.header-section{
+    height: 50%;
+    display:flex;
+    justify-content:center;
+    margin: 2rem;
+}
+h1{
+    font-size:2rem;
+    color:yellow
+}
+.game-modal{
+    margin-top:2rem;
+    height: 50%;
+    width: 50%;
+    display:flex;
+    justify-content: space-evenly;
+}
+.score-modal{
+    color:rgb(105, 105, 105);
+    background-color: aquamarine;
+    border-radius: 20px;
+    padding:.1rem .5rem;
+    border: 0.1rem solid rgb(105, 105, 105);
+}
+button{
+    font-size:1.5rem;
+    border-radius: 20px;
+    background-color: aquamarine;
+    color:rgb(105, 105, 105);
+}
+.btn-rest:hover{
+    transition: 0.5s;
+    background-color:yellow;
+    font-size:2rem;
+}
+.btn-undo:hover{
+    transition: 0.5s;
+    background-color:rgb(73, 255, 73);
+    font-size:1.7rem;
+}
+
+.panel{
+    display:flex;
+    justify-content:center;
+    margin-top:4rem;
+    height:500px
+}
+.cell {
+    width: 43px;
+    height: 43px;
+    text-align: center;
+    font-size: 1.5em;
+  }
+  .floor {
+      background-color: gray
+    }
+ .wall {
+    background-image: url("../image/WALL.PNG");
+    background-size: 95%;
+} 
+.victory{
+margin-top: 1rem;
+    border-radius: 3rem;
+    background-color: rgb(185, 185, 185);
+    width:50%;
+    height: 70%;
+    display:flex;
+    justify-content:center;
+    margin-bottom: 3rem;
+}
+.victory h4{
+    color:yellow;
+}
+.hidden{
+    display:none;
+}
