@@ -1,4 +1,8 @@
 'use strict'
+var winAudio = document.getElementById("win-audio");
+var glueAudio = document.getElementById("glue-audio");
+var waterAudio = document.getElementById("water-audio");
+var targetAudio = document.getElementById("target-audio");
 
 const WALL_IMG = '<img src="image/WALL.png" />'
 var GAMER_IMG = '🐝'
@@ -154,10 +158,6 @@ function gameOverModal(isVictory){
 }
 
 
-var winAudio = document.getElementById("win-audio");
-var glueAudio = document.getElementById("glue-audio");
-var waterAudio = document.getElementById("water-audio");
-var targetAudio = document.getElementById("target-audio");
 
 function playTargetAudio() {
     targetAudio.play();
