@@ -105,7 +105,7 @@ function isVictory() {
 	if (isBoxesInTargets()) {
 		// alert('you win')
 		BOX_IMG = '🍯'
-		GAMER_IMG = '<img src="image/win.png" />'
+		GAMER_IMG = '<img src="../win.png" />'
 		gGameIsOn = false
 		clearInterval(gTimer)
 		gameOverModal(true);
