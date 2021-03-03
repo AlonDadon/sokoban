@@ -73,7 +73,7 @@ button{
       background-color: gray
     }
  .wall {
-    background-image: url("../WALL.png");
+    background-image: url("../WALL.PNG");
     background-size: 95%;
 } 
 .victory{
