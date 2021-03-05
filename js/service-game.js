@@ -1,12 +1,4 @@
 'use strict'
-var gBoard;
-var gGamerPos;
-var gGamerCountSteps;
-var gLastGamerPos;
-var gIsMoveToGlue;
-var gTimer;
-var gSeconds;
-var gGameIsOn;
 const WALL = 'WALL';
 const FLOOR = 'FLOOR';
 const GAMER = 'SOKOBAN';
@@ -14,48 +6,41 @@ const BOX = 'BOX'
 const TARGET = 'TARGET'
 const GLUE = 'GLUE'
 const WATER = 'WATER'
+var gBoard;
+var gGamerPos;
+var gGamerCountSteps;
+var gIsMoveToGlue;
+var gTimer;
+var gSeconds;
+var gGameIsOn;
+var gLastBoard;
 
 function restGame() {
 	gGameIsOn = true;
 	gameOverModal(false);
-	endTimer()
-	startTimer()
-	restGamerLastPos()
-	getStartGamerCountSteps()
-	getStartGamerPos()
-	gameIsOn()
+	clearInterval(gTimer)
+	gTimer = null
+	gTimer = setInterval(updateTime, 1000)
+	gGamerCountSteps = 0
+	gGameIsOn = true;
+	gGamerPos = { i: 5, j: 5 };
+	gSeconds = 0
+	gLastBoard = getBoard()
 	BOX_IMG = '🌷'
 	GAMER_IMG = '🐝'
 }
-function gameIsOn() {
-	gGameIsOn = true;
+function endTimer() {
+	clearInterval(gTimer)
+	gTimer = null
 }
-
 function getGameIsOn() {
 	return gGameIsOn
 }
 function getTimer() {
 	return gSeconds
 }
-function startTimer() {
-	gTimer = setInterval(updateTime, 1000)
-	gSeconds = 0
-}
 function updateTime() {
 	gSeconds++
-}
-function endTimer() {
-	clearInterval(gTimer)
-	gTimer = null
-}
-function getStartGamerPos() {
-	gGamerPos = { i: 5, j: 5 };
-}
-function getStartGamerCountSteps() {
-	gGamerCountSteps = 0
-}
-function restGamerLastPos() {
-	gLastGamerPos = { i: 5, j: 5 };
 }
 function getNewBoard() {
 	return gBoard = buildBoard();
@@ -66,9 +51,6 @@ function getBoard() {
 function getGamerPos() {
 	return gGamerPos
 }
-function getLastGamerPos() {
-	return gLastGamerPos
-}
 function getIsMoveToGlue() {
 	return gIsMoveToGlue
 }
@@ -76,10 +58,6 @@ function updateGameElement(location, value) {
 	gBoard[location.i][location.j].gameElement = value;
 }
 function updateGamerPos(i, j) {
-	if (gGamerPos.i !== i && gGamerPos.j === j ||
-		gGamerPos.i === i && gGamerPos.j !== j) {
-		saveLastGamerPos(gGamerPos)
-	}
 	gGamerPos = { i: i, j: j }
 }
 function updateGamerCountSteps(diff) {
@@ -89,27 +67,34 @@ function getGamerCountSteps() {
 	return gGamerCountSteps
 }
 function undo() {
-	updateGameElement(gGamerPos, null)
-	updateGameElement(gLastGamerPos, GAMER)
-	updateGamerPos(gLastGamerPos.i, gLastGamerPos.j)
-	gGamerCountSteps--
+	let cellGamer = { gameElement: "SOKOBAN" }
+	let lastGamerPos = findGamerPos(gLastBoard, cellGamer.gameElement)
+	updateGamerPos(lastGamerPos.i, lastGamerPos.j)
+	gBoard = gLastBoard
 }
-function saveLastGamerPos(gamerPos) {
-	gLastGamerPos = gamerPos
+function findGamerPos(board, object) {
+	let gamer = JSON.stringify(object)
+	let gamerPos = {}
+	for (let i = 0; i < board.length; i++) {
+		for (let j = 0; j < board.length; j++) {
+			if (JSON.stringify(board[i][j].gameElement) === gamer) {
+				return gamerPos = { i: i, j: j }
+			}
+		}
+	}
 }
 function isMoveToGlue(isGlue) {
-	gIsMoveToGlue = (isGlue) ? true : false
+	gIsMoveToGlue = isGlue
 	if (gIsMoveToGlue) updateGamerCountSteps(5)
 }
 function isVictory() {
 	if (isBoxesInTargets()) {
-		// alert('you win')
 		BOX_IMG = '🍯'
 		GAMER_IMG = '<img src="../win.png" />'
 		gGameIsOn = false
 		clearInterval(gTimer)
 		gameOverModal(true);
-		playWinAudio()
+		playAudio(gWinAudio)
 	}
 }
 function isBoxesInTargets() {
@@ -156,29 +141,21 @@ function buildBoard() {
 	for (var i = 0; i < board.length; i++) {
 		for (var j = 0; j < board[0].length; j++) {
 			var cell = { type: FLOOR, gameElement: null };
-			if (i === 0 || i === board.length - 1 || j === 0 || j === board[0].length - 1) {
+			if (i === 0 || i === board.length - 1 || j === 0 || j === board[0].length - 1 ||
+				j === 2 && i > 2 && i < 7 || j === 7 && i > 2 && i < 7 || 
+				i === 8 && j > 2 && j < 6) {
 				cell.type = WALL;
+			}
+			if (i > 1 && i < 8 && j === 9 || j === 3 && i > 2 && i < 7) {
+				cell.type = WATER;
 			}
 			board[i][j] = cell;
 		}
 	}
-	board[6][4].type = WALL;
 	board[3][4].type = WALL;
-	board[3][2].type = WALL;
+	board[6][4].type = WALL;
 	board[3][1].type = WALL;
-	board[4][2].type = WALL;
-	board[5][2].type = WALL;
-	board[6][2].type = WALL;
-
-	board[6][7].type = WALL;
-	board[3][7].type = WALL;
-	board[4][7].type = WALL;
-	board[5][7].type = WALL;
 	board[1][7].type = WALL;
-
-	board[8][5].type = WALL;
-	board[8][4].type = WALL;
-	board[8][3].type = WALL;
 
 	board[gGamerPos.i][gGamerPos.j].gameElement = GAMER;
 	board[4][5].gameElement = BOX;
@@ -191,17 +168,8 @@ function buildBoard() {
 
 	board[3][5].gameElement = GLUE;
 	board[7][6].gameElement = GLUE;
-
-	board[2][9].type = WATER;
-	board[3][9].type = WATER;
-	board[4][9].type = WATER;
-	board[5][9].type = WATER;
-	board[6][9].type = WATER;
-	board[7][9].type = WATER;
-	board[2][9].type = WATER;
-	board[3][3].type = WATER;
-	board[4][3].type = WATER;
-	board[5][3].type = WATER;
-	board[6][3].type = WATER;
 	return board;
+}
+function saveLastBoard(board) {
+	gLastBoard = board
 }

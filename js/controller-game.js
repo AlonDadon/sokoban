@@ -1,8 +1,8 @@
 'use strict'
-var winAudio = document.getElementById("win-audio");
-var glueAudio = document.getElementById("glue-audio");
-var waterAudio = document.getElementById("water-audio");
-var targetAudio = document.getElementById("target-audio");
+var gWinAudio = document.getElementById("win-audio");
+var gGlueAudio = document.getElementById("glue-audio");
+var gGwaterAudio = document.getElementById("water-audio");
+var gTargetAudio = document.getElementById("target-audio");
 
 const WALL_IMG = '<img src="image/WALL.png" />'
 var GAMER_IMG = '🐝'
@@ -15,19 +15,19 @@ var gRenderTimerInterval;
 function init() {
     restGame()
     gRenderTimerInterval = clearInterval
-    gRenderTimerInterval = setInterval(renderTimer,1000)
+    gRenderTimerInterval = setInterval(renderTimer, 1000)
     let board = getNewBoard()
     renderBoard(board);
     renderSteps()
 }
 function renderBoard(board) {
+
     var strHTML = '';
     for (var i = 0; i < board.length; i++) {
         strHTML += '<tr>\n';
         for (var j = 0; j < board[0].length; j++) {
             var currCell = board[i][j];
             var cellClass = getClassName({ i: i, j: j })
-            // TODO - change to short if statement
             if (currCell.type === FLOOR) cellClass += ' floor';
             else if (currCell.type === WALL) cellClass += ' wall';
             strHTML += '\t<td class="cell ' + cellClass +
@@ -57,6 +57,7 @@ function getClassName(location) {
     return cellClass;
 }
 function onHandleKey(event) {
+
     var i = gGamerPos.i;
     var j = gGamerPos.j;
     switch (event.key) {
@@ -75,9 +76,13 @@ function onHandleKey(event) {
     }
 }
 function moveTo(i, j) {
+    console.log('POS', gGamerPos)
+    var lastBoard = JSON.stringify(gBoard)
+    saveLastBoard(JSON.parse(lastBoard))
     let gameIsOn = getGameIsOn()
-    if (!gameIsOn)return
+    if (!gameIsOn) return
     let board = getBoard()
+
     let IsMoveToGlue = getIsMoveToGlue()
     if (IsMoveToGlue) return
     let targetCell = board[i][j];
@@ -90,7 +95,7 @@ function moveTo(i, j) {
     let jAbsDiff = Math.abs(j - gamerPos.j);
     if ((iAbsDiff === 1 && jAbsDiff === 0) || (jAbsDiff === 1 && iAbsDiff === 0)) {
         if (targetCell.gameElement === GLUE) {
-            playGlueAudio()
+            playAudio(gGlueAudio)
             isMoveToGlue(true)
             setTimeout(isMoveToGlue, 5000, false)
         }
@@ -99,17 +104,17 @@ function moveTo(i, j) {
             if (board[boxLocation.i][boxLocation.j].gameElement !== null) return;
             updateGameElement(boxLocation, BOX)
             if (board[boxLocation.i][boxLocation.j].type === TARGET) {
-                playTargetAudio()
+                playAudio(gTargetAudio)
                 isVictory()
                 console.log('is target')
             }
-            if  (board[gamerPos.i+iDiff][gamerPos.j].type !== WATER) {
+            if (board[gamerPos.i + iDiff][gamerPos.j].type !== WATER) {
                 if (board[boxLocation.i][boxLocation.j].type === WATER) {
                     slidesDown(board, boxLocation.i, boxLocation.j, BOX)
-                    playWaterAudio()
+                    playAudio(gGwaterAudio)
                     board = getBoard()
                     gamerPos = getGamerPos()
-                }       
+                }
             }
         }
         updateGameElement(gamerPos, null)
@@ -118,7 +123,9 @@ function moveTo(i, j) {
         updateGameElement(gamerPos, GAMER)
         updateGamerCountSteps(1)
         renderSteps()
+        console.log('AFTER', gBoard)
         renderBoard(board)
+        console.log('AFTER', gGamerPos)
     }
 }
 function renderCell(location, value) {
@@ -132,42 +139,36 @@ function renderSteps() {
     elSteps.innerText = gamerCountSteps
 }
 function onUndo() {
-   let gameIsOn = getGameIsOn()
-   if(!gameIsOn)return
-    let gamerCurrPos = getGamerPos()
-    let gamerLastPos = getLastGamerPos()
-    if (gamerCurrPos.i === gamerLastPos.i && gamerCurrPos.j === gamerLastPos.j) {
+    let gameIsOn = getGameIsOn()
+    if (!gameIsOn) return
+    if (gBoard === gLastBoard) {
         alert('You can go back a step only once after a step forward.')
         return;
     }
     undo()
-    renderCell(gamerLastPos, GAMER_IMG);
-    renderCell(gamerCurrPos, null);
+    renderBoard(gBoard)
     renderSteps()
 }
 function renderTimer() {
     let timer = getTimer()
     let elTimer = document.querySelector('.timer');
-     elTimer.innerText = padNum(timer);
+    elTimer.innerText = padNum(timer);
 }
-function gameOverModal(isVictory){
-    let add =(isVictory)?'.h-header':'.victory-modal'
-    let remove = (isVictory)?'.victory-modal':'.h-header'
-        document.querySelector(remove).classList.remove('hidden')
-        document.querySelector(add).classList.add('hidden')
+function gameOverModal(isVictory) {
+    let add = (isVictory) ? '.h-header' : '.victory-modal'
+    let remove = (isVictory) ? '.victory-modal' : '.h-header'
+    document.querySelector(remove).classList.remove('hidden')
+    document.querySelector(add).classList.add('hidden')
+}
+function playAudio(audioName){
+let audioNames =[gTargetAudio,gGwaterAudio,gGlueAudio,gWinAudio]
+let  play = audioNames.find(function(play){
+return play === audioName
+})
+play.play()
 }
 
+// to the next update
+// fix-not found url
+// var audio = new Audio("sound/water.wav");
 
-
-function playTargetAudio() {
-    targetAudio.play();
-}
-function playWaterAudio() {
-    waterAudio.play();
-}
-function playGlueAudio() {
-    glueAudio.play();
-}
-function playWinAudio() {
-    winAudio.play();
-}
